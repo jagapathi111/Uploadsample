@@ -11,13 +11,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
 
     Button btn;
-    TextView textview;
+    TextView textview, textView2;
 
 
     @Override
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
         btn = (Button) findViewById(R.id.btn);
         textview = (TextView) findViewById(R.id.textview);
+        textView2 = (TextView) findViewById(R.id.textView2);
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         String displayName = null;
+        int bytes = 0;
+        double mb = 0;
         switch (requestCode) {
             case 1212:
                 if (resultCode == RESULT_OK) {
@@ -53,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                     Uri uri = data.getData();
                     String uriString = uri.toString();
                     File myFile = new File(uriString);
-                    String path = myFile.getAbsolutePath();
+
 
                     if (uriString.startsWith("content://")) {
                         Cursor cursor = null;
@@ -61,16 +66,25 @@ public class MainActivity extends AppCompatActivity {
                             cursor = this.getContentResolver().query(uri, null, null, null, null);
                             if (cursor != null && cursor.moveToFirst()) {
                                 displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                            } Log.d(displayName,"hi");
+                                 bytes = cursor.getInt(cursor.getColumnIndex(OpenableColumns.SIZE));
+                                 mb = bytes*0.000001;
+                            }
                         } finally {
                             cursor.close();
                         }
                     } else if (uriString.startsWith("file://")) {
                         displayName = myFile.getName();
+
+
+
+
+
                     }
                 }
                 break;
         }           textview.setText(displayName);
+                    textView2.setText(String.format("%.2f", mb  )+ "mb");
+
 
         super.onActivityResult(requestCode, resultCode, data);
     }
